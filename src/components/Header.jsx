@@ -19,6 +19,14 @@ export default function Header() {
         <Navbar.Collapse id="main-nav">
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/">Home</Nav.Link>
+            {isAuthenticated && (
+              <Nav.Link as={NavLink} to="/coffee-management">Coffee Management</Nav.Link>
+            )}
+            {isAuthenticated && (
+              <Nav.Link as={NavLink} to="/subscription-plans">
+                Subscription Plans
+              </Nav.Link>
+            )}
           </Nav>
           <Nav>
             {isAuthenticated ? (
