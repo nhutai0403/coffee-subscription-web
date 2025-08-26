@@ -1,29 +1,12 @@
 import { Card, Row, Col } from 'react-bootstrap'
-
-function LineChart({ data, fill = false, color = '#0d6efd' }) {
-  const max = Math.max(...data)
-  const points = data
-    .map((value, index) => {
-      const x = (index / (data.length - 1)) * 100
-      const y = 100 - (value / max) * 100
-      return `${x},${y}`
-    })
-    .join(' ')
-
-  const path = points
-    .split(' ')
-    .map((p, i) => (i === 0 ? `M${p}` : `L${p}`))
-    .join(' ')
-
-  const area = `${path} L100,100 L0,100 Z`
-
-  return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
-      {fill && <path d={area} fill={`${color}33`} stroke="none" />}
-      <path d={path} fill="none" stroke={color} strokeWidth="2" />
-    </svg>
-  )
-}
+import {
+  VictoryArea,
+  VictoryAxis,
+  VictoryChart,
+  VictoryLine,
+  VictoryTheme,
+  VictoryTooltip,
+} from 'victory'
 
 export default function Dashboard() {
   const stats = [
@@ -33,8 +16,35 @@ export default function Dashboard() {
     { title: 'Conversion Rate', value: '3.2%', change: '+25.3% from last month' },
   ]
 
-  const revenueData = [30, 40, 35, 50, 65, 60, 70, 80, 75, 85, 90, 95]
-  const subscriptionData = [5, 10, 8, 12, 15, 14, 16, 18, 17, 19, 20, 22]
+  const revenueData = [
+    { month: 'Jan', revenue: 12000 },
+    { month: 'Feb', revenue: 15000 },
+    { month: 'Mar', revenue: 18000 },
+    { month: 'Apr', revenue: 22000 },
+    { month: 'May', revenue: 25000 },
+    { month: 'Jun', revenue: 28000 },
+    { month: 'Jul', revenue: 32000 },
+    { month: 'Aug', revenue: 35000 },
+    { month: 'Sep', revenue: 38000 },
+    { month: 'Oct', revenue: 42000 },
+    { month: 'Nov', revenue: 45000 },
+    { month: 'Dec', revenue: 48000 },
+  ]
+
+  const subscriptionData = [
+    { month: 'Jan', subscriptions: 120 },
+    { month: 'Feb', subscriptions: 150 },
+    { month: 'Mar', subscriptions: 180 },
+    { month: 'Apr', subscriptions: 220 },
+    { month: 'May', subscriptions: 250 },
+    { month: 'Jun', subscriptions: 280 },
+    { month: 'Jul', subscriptions: 320 },
+    { month: 'Aug', subscriptions: 350 },
+    { month: 'Sep', subscriptions: 380 },
+    { month: 'Oct', subscriptions: 420 },
+    { month: 'Nov', subscriptions: 450 },
+    { month: 'Dec', subscriptions: 480 },
+  ]
 
   return (
     <div>
@@ -56,17 +66,67 @@ export default function Dashboard() {
       <Row className="g-4">
         <Col md={8}>
           <Card style={{ height: 300 }}>
-            <Card.Body>
+            <Card.Body className="h-100 d-flex flex-column">
               <Card.Title>Revenue Overview</Card.Title>
-              <LineChart data={revenueData} fill color="#6c757d" />
+              <div className="flex-grow-1">
+                <VictoryChart
+                  theme={VictoryTheme.material}
+                  height={220}
+                  padding={{ left: 60, top: 20, right: 20, bottom: 50 }}
+                  domainPadding={{ x: 20 }}
+                  style={{ parent: { width: '100%', height: '100%' } }}
+                >
+                  <VictoryAxis dependentAxis tickFormat={(x) => `$${x / 1000}k`} />
+                  <VictoryAxis />
+                  <VictoryArea
+                    data={revenueData}
+                    x="month"
+                    y="revenue"
+                    style={{
+                      data: {
+                        fill: '#6c757d33',
+                        stroke: '#6c757d',
+                        strokeWidth: 2,
+                      },
+                    }}
+                    animate={{ duration: 1000, onLoad: { duration: 500 } }}
+                  />
+                  <VictoryLine
+                    data={revenueData}
+                    x="month"
+                    y="revenue"
+                    style={{ data: { stroke: '#6c757d', strokeWidth: 3 } }}
+                    labelComponent={<VictoryTooltip />}
+                  />
+                </VictoryChart>
+              </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md={4}>
           <Card style={{ height: 300 }}>
-            <Card.Body>
+            <Card.Body className="h-100 d-flex flex-column">
               <Card.Title>Subscription Growth</Card.Title>
-              <LineChart data={subscriptionData} color="#0d6efd" />
+              <div className="flex-grow-1">
+                <VictoryChart
+                  theme={VictoryTheme.material}
+                  height={220}
+                  padding={{ left: 60, top: 20, right: 20, bottom: 50 }}
+                  domainPadding={{ x: 20 }}
+                  style={{ parent: { width: '100%', height: '100%' } }}
+                >
+                  <VictoryAxis dependentAxis />
+                  <VictoryAxis />
+                  <VictoryLine
+                    data={subscriptionData}
+                    x="month"
+                    y="subscriptions"
+                    style={{ data: { stroke: '#0d6efd', strokeWidth: 3 } }}
+                    animate={{ duration: 1000, onLoad: { duration: 500 } }}
+                    labelComponent={<VictoryTooltip />}
+                  />
+                </VictoryChart>
+              </div>
             </Card.Body>
           </Card>
         </Col>
