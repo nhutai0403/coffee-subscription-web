@@ -46,6 +46,12 @@ export default function CoffeeManagement() {
   })
   const [selectedImage, setSelectedImage] = useState(null)
   const [createLoading, setCreateLoading] = useState(false)
+  const [pageInfo, setPageInfo] = useState({
+    pageNum: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0
+  })
 
   // Fetch coffee items on component mount
   useEffect(() => {
@@ -55,24 +61,13 @@ export default function CoffeeManagement() {
   const filterItems = useCallback(() => {
     let filtered = coffeeItems
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(item =>
-        item.coffeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Filter by category
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(item => item.categoryId.toString() === categoryFilter)
     }
 
     setFilteredItems(filtered)
-  }, [coffeeItems, searchTerm, categoryFilter])
+  }, [coffeeItems, categoryFilter])
 
-  // Filter items when search or category changes
   useEffect(() => {
     filterItems()
   }, [filterItems])
@@ -89,6 +84,36 @@ export default function CoffeeManagement() {
       setLoading(false)
     }
   }
+
+  const searchCoffeeItems = async (keyword) => {
+    try {
+      setLoading(true)
+      setError('')
+      const result = await coffeeService.searchCoffeeItems(
+        { keyword, isDelete: false },
+        { pageNum: 1, pageSize: 100 }
+      )
+      setCoffeeItems(result.pageData || [])
+      if (result.pageInfo) {
+        setPageInfo(result.pageInfo)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm.trim()) {
+        searchCoffeeItems(searchTerm.trim())
+      } else {
+        fetchCoffeeItems()
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
 
   
 
@@ -115,22 +140,17 @@ export default function CoffeeManagement() {
       
       // Prepare data for API call
       const updateData = {
-        categoryId: parseInt(editForm.categoryId) || null,
         coffeeName: editForm.coffeeName || null,
         description: editForm.description || null,
         code: editForm.code || null,
         isActive: editForm.isActive,
+        image: null,
         imageUrl: editForm.imageUrl || null
       }
 
       await coffeeService.updateCoffeeItem(selectedCoffee.coffeeId, updateData)
-      
-      // Update local state
-      setCoffeeItems(prev => prev.map(item => 
-        item.coffeeId === selectedCoffee.coffeeId 
-          ? { ...item, ...updateData }
-          : item
-      ))
+
+      await fetchCoffeeItems()
       
       setShowEditModal(false)
       setSelectedCoffee(null)
@@ -175,8 +195,7 @@ export default function CoffeeManagement() {
         coffeeName: createForm.coffeeName.trim() || null,
         description: createForm.description.trim() || null,
         code: createForm.code.trim() || null,
-        isActive: createForm.isActive,
-        imageUrl: createForm.imageUrl.trim() || null
+        isActive: createForm.isActive
       }
       
       // Validate required fields
@@ -190,29 +209,30 @@ export default function CoffeeManagement() {
         throw new Error('Code is required')
       }
 
-      // Upload image first if selected
-      let imageUrl = ''
+      // Upload image and convert to base64 if selected
+      let base64Image = ''
       if (selectedImage) {
         try {
-          const uploadResult = await coffeeService.uploadCoffeeImage(selectedImage)
-          imageUrl = uploadResult.url || uploadResult.imageUrl || uploadResult.path || ''
-          console.log('Image uploaded successfully:', imageUrl)
+          await coffeeService.uploadCoffeeImage(selectedImage)
+          const reader = new FileReader()
+          base64Image = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result.split(',')[1])
+            reader.onerror = reject
+            reader.readAsDataURL(selectedImage)
+          })
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError)
-          // Continue with coffee creation even if image upload fails
         }
       }
 
-      // Create coffee item with image URL
       const coffeeDataWithImage = {
         ...createData,
-        image: imageUrl
+        image: base64Image
       }
-      
-      const newCoffee = await coffeeService.createCoffeeItem(coffeeDataWithImage)
-      
-      // Add new coffee to local state
-      setCoffeeItems(prev => [...prev, newCoffee])
+
+      await coffeeService.createCoffeeItem(coffeeDataWithImage)
+
+      await fetchCoffeeItems()
       
       setShowCreateModal(false)
       setCreateForm({
@@ -343,7 +363,7 @@ export default function CoffeeManagement() {
       {/* Results Summary */}
       <div className="mb-3">
         <small className="text-muted">
-          Showing {filteredItems.length} of {coffeeItems.length} coffee items
+          Showing {filteredItems.length} of {pageInfo.totalItems || coffeeItems.length} coffee items
         </small>
       </div>
 
