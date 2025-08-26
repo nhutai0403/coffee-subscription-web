@@ -56,17 +56,21 @@ export default function Dashboard() {
       <Row className="g-4">
         <Col md={8}>
           <Card style={{ height: 300 }}>
-            <Card.Body>
+            <Card.Body className="d-flex flex-column h-100">
               <Card.Title>Revenue Overview</Card.Title>
-              <LineChart data={revenueData} fill color="#6c757d" />
+              <div className="flex-grow-1">
+                <LineChart data={revenueData} fill color="#6c757d" />
+              </div>
             </Card.Body>
           </Card>
         </Col>
         <Col md={4}>
           <Card style={{ height: 300 }}>
-            <Card.Body>
+            <Card.Body className="d-flex flex-column h-100">
               <Card.Title>Subscription Growth</Card.Title>
-              <LineChart data={subscriptionData} color="#0d6efd" />
+              <div className="flex-grow-1">
+                <LineChart data={subscriptionData} color="#0d6efd" />
+              </div>
             </Card.Body>
           </Card>
         </Col>
