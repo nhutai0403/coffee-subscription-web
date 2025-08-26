@@ -1,11 +1,28 @@
 import { Card, Row, Col } from 'react-bootstrap'
 
-function LineChart({ data, fill = false, color = '#0d6efd' }) {
-  const max = Math.max(...data)
+function LineChart({
+  data,
+  xLabels = [],
+  fill = false,
+  color = '#0d6efd',
+  max: maxProp,
+  yFormat = v => v,
+}) {
+  const max = maxProp ?? Math.max(...data)
+
+  const margin = { top: 5, right: 5, bottom: 15, left: 25 }
+  const width = 100
+  const height = 80
+
+  const svgWidth = width + margin.left + margin.right
+  const svgHeight = height + margin.top + margin.bottom
+
   const points = data
     .map((value, index) => {
-      const x = (index / (data.length - 1)) * 100
-      const y = 100 - (value / max) * 100
+      const x =
+        margin.left + (index / (data.length - 1 || 1)) * width
+      const y =
+        margin.top + height - (value / max) * height
       return `${x},${y}`
     })
     .join(' ')
@@ -15,12 +32,84 @@ function LineChart({ data, fill = false, color = '#0d6efd' }) {
     .map((p, i) => (i === 0 ? `M${p}` : `L${p}`))
     .join(' ')
 
-  const area = `${path} L100,100 L0,100 Z`
+  const area = `${path} L${margin.left + width},${
+    margin.top + height
+  } L${margin.left},${margin.top + height} Z`
+
+  const tickCount = 4
+  const ticks = Array.from({ length: tickCount }, (_, i) =>
+    ((i + 1) * max) / tickCount
+  )
 
   return (
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%' }}>
+    <svg
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      preserveAspectRatio="none"
+      style={{ width: '100%', height: '100%' }}
+    >
+      {ticks.map(t => {
+        const y = margin.top + height - (t / max) * height
+        return (
+          <line
+            key={`grid-${t}`}
+            x1={margin.left}
+            y1={y}
+            x2={margin.left + width}
+            y2={y}
+            stroke="#e9ecef"
+            strokeWidth="0.5"
+          />
+        )
+      })}
       {fill && <path d={area} fill={`${color}33`} stroke="none" />}
       <path d={path} fill="none" stroke={color} strokeWidth="2" />
+      <line
+        x1={margin.left}
+        y1={margin.top}
+        x2={margin.left}
+        y2={margin.top + height}
+        stroke="#adb5bd"
+        strokeWidth="0.5"
+      />
+      <line
+        x1={margin.left}
+        y1={margin.top + height}
+        x2={margin.left + width}
+        y2={margin.top + height}
+        stroke="#adb5bd"
+        strokeWidth="0.5"
+      />
+      {xLabels.length === data.length &&
+        xLabels.map((label, i) => {
+          const x = margin.left + (i / (data.length - 1 || 1)) * width
+          return (
+            <text
+              key={`x-${i}`}
+              x={x}
+              y={svgHeight - 3}
+              fontSize="5"
+              textAnchor="middle"
+              fill="#6c757d"
+            >
+              {label}
+            </text>
+          )
+        })}
+      {ticks.map(t => {
+        const y = margin.top + height - (t / max) * height + 2
+        return (
+          <text
+            key={`y-${t}`}
+            x={margin.left - 3}
+            y={y}
+            fontSize="5"
+            textAnchor="end"
+            fill="#6c757d"
+          >
+            {yFormat(Math.round(t))}
+          </text>
+        )
+      })}
     </svg>
   )
 }
@@ -33,8 +122,26 @@ export default function Dashboard() {
     { title: 'Conversion Rate', value: '3.2%', change: '+25.3% from last month' },
   ]
 
-  const revenueData = [30, 40, 35, 50, 65, 60, 70, 80, 75, 85, 90, 95]
-  const subscriptionData = [5, 10, 8, 12, 15, 14, 16, 18, 17, 19, 20, 22]
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const revenueData = [
+    10, 15, 13, 20, 25, 23, 30, 35, 33, 37, 39, 40,
+  ]
+  const subscriptionData = [
+    100, 200, 150, 250, 300, 280, 320, 360, 340, 380, 400, 400,
+  ]
 
   return (
     <div>
@@ -58,8 +165,16 @@ export default function Dashboard() {
           <Card style={{ height: 300 }}>
             <Card.Body className="d-flex flex-column h-100">
               <Card.Title>Revenue Overview</Card.Title>
+              <small className="text-muted">Monthly revenue for the past year</small>
               <div className="flex-grow-1">
-                <LineChart data={revenueData} fill color="#6c757d" />
+                <LineChart
+                  data={revenueData}
+                  xLabels={months}
+                  max={40}
+                  fill
+                  color="#6c757d"
+                  yFormat={v => `$${v}k`}
+                />
               </div>
             </Card.Body>
           </Card>
@@ -68,8 +183,14 @@ export default function Dashboard() {
           <Card style={{ height: 300 }}>
             <Card.Body className="d-flex flex-column h-100">
               <Card.Title>Subscription Growth</Card.Title>
+              <small className="text-muted">New subscriptions per month</small>
               <div className="flex-grow-1">
-                <LineChart data={subscriptionData} color="#0d6efd" />
+                <LineChart
+                  data={subscriptionData}
+                  xLabels={months}
+                  max={400}
+                  color="#0d6efd"
+                />
               </div>
             </Card.Body>
           </Card>
