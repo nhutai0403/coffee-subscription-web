@@ -3,7 +3,7 @@ import { api } from '../utils/axiosConfig'
 export const subscriptionPlanService = {
   getAllPlans: async () => {
     try {
-      const response = await api.get('/api/SubscriptionPlan/getAll')
+      const response = await api.get('/api/SubscriptionPlan')
       return response.data
     } catch (error) {
       console.error('Error fetching subscription plans:', error)
@@ -23,7 +23,7 @@ export const subscriptionPlanService = {
 
   createPlan: async (planData) => {
     try {
-      const response = await api.post('/api/SubscriptionPlan/create', planData)
+      const response = await api.post('/api/SubscriptionPlan', planData)
       return response.data
     } catch (error) {
       console.error('Error creating subscription plan:', error)
