@@ -36,21 +36,6 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-
-  const signUp = useCallback(async (name, email, password) => {
-    try {
-      const { token: newToken, user: newUser } = await authService.signUp({ name, email, password })
-      localStorage.setItem('auth_token', newToken)
-      localStorage.setItem('auth_user', JSON.stringify(newUser))
-      setToken(newToken)
-      setUser(newUser)
-      return newUser
-    } catch (error) {
-      console.error('Sign up error:', error)
-      throw error
-    }
-  }, [])
-
   const signOut = useCallback(() => {
     try {
       authService.signOut()
@@ -70,9 +55,8 @@ export function AuthProvider({ children }) {
     isInitializing,
     isAuthenticated: Boolean(user && token),
     signIn,
-    signUp,
     signOut,
-  }), [user, token, isInitializing, signIn, signUp, signOut])
+  }), [user, token, isInitializing, signIn, signOut])
 
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
