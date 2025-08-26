@@ -1,4 +1,4 @@
-import { api } from '../utils/axiosConfig'
+import { api, apiFormData } from '../utils/axiosConfig'
 
 export const coffeeService = {
   // Get all coffee items
@@ -37,38 +37,92 @@ export const coffeeService = {
   // Create a new coffee item
   createCoffeeItem: async (coffeeData) => {
     try {
-      const requestData = {
-        CategoryId: coffeeData.categoryId,
-        CoffeeName: coffeeData.coffeeName,
-        Description: coffeeData.description,
-        Code: coffeeData.code,
-        IsActive: coffeeData.isActive,
-        Image: coffeeData.image
+      // Debug: Log the data being sent
+      console.log('Creating coffee item with data:', coffeeData)
+      
+      // Use FormData - let browser set Content-Type automatically
+      const formData = new FormData()
+      formData.append('CategoryId', coffeeData.categoryId)
+      formData.append('CoffeeName', coffeeData.coffeeName)
+      formData.append('Description', coffeeData.description || '')
+      formData.append('Code', coffeeData.code)
+      formData.append('IsActive', coffeeData.isActive)
+      
+      // If there's an image file, append it directly
+      if (coffeeData.image) {
+        formData.append('Image', coffeeData.image)
       }
-      const response = await api.post('/api/CoffeeItem', requestData)
+
+      console.log('Sending FormData request')
+      // Use regular api but override Content-Type to let browser set it
+      const response = await api.post('/api/CoffeeItem', formData, {
+        headers: {
+          'Content-Type': undefined // Let browser set multipart/form-data with boundary
+        }
+      })
       return response.data
     } catch (error) {
       console.error('Error creating coffee item:', error)
-      throw new Error(error.response?.data?.message || 'Failed to create coffee item.')
+      console.error('Error response:', error.response?.data)
+      
+      // Provide more detailed error message
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      } else if (error.response?.data?.errors) {
+        const errorMessages = Object.values(error.response.data.errors).flat()
+        throw new Error(`Validation errors: ${errorMessages.join(', ')}`)
+      } else if (error.response?.status === 500) {
+        throw new Error('Server error. Please check if all required fields are provided correctly.')
+      } else {
+        throw new Error('Failed to create coffee item.')
+      }
     }
   },
 
   // Update existing coffee item
   updateCoffeeItem: async (coffeeId, coffeeData) => {
     try {
-      const requestData = {
-        CoffeeName: coffeeData.coffeeName,
-        Description: coffeeData.description,
-        Code: coffeeData.code,
-        IsActive: coffeeData.isActive,
-        Image: coffeeData.image,
-        ImageUrl: coffeeData.imageUrl
+      console.log('Updating coffee item with data:', coffeeData)
+      
+      // Use FormData - let browser set Content-Type automatically
+      const formData = new FormData()
+      formData.append('CoffeeName', coffeeData.coffeeName || '')
+      formData.append('Description', coffeeData.description || '')
+      formData.append('Code', coffeeData.code || '')
+      formData.append('IsActive', coffeeData.isActive)
+      
+      // Handle image file upload
+      if (coffeeData.image) {
+        formData.append('Image', coffeeData.image)
       }
-      const response = await api.put(`/api/CoffeeItem/${coffeeId}`, requestData)
+      
+      // Handle image URL if provided
+      if (coffeeData.imageUrl) {
+        formData.append('ImageUrl', coffeeData.imageUrl)
+      }
+
+      console.log('Sending FormData update request')
+      const response = await api.put(`/api/CoffeeItem/${coffeeId}`, formData, {
+        headers: {
+          'Content-Type': undefined // Let browser set multipart/form-data with boundary
+        }
+      })
       return response.data
     } catch (error) {
       console.error('Error updating coffee item:', error)
-      throw new Error('Failed to update coffee item.')
+      console.error('Error response:', error.response?.data)
+      
+      // Provide more detailed error message
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      } else if (error.response?.data?.errors) {
+        const errorMessages = Object.values(error.response.data.errors).flat()
+        throw new Error(`Validation errors: ${errorMessages.join(', ')}`)
+      } else if (error.response?.status === 500) {
+        throw new Error('Server error. Please check if all required fields are provided correctly.')
+      } else {
+        throw new Error('Failed to update coffee item.')
+      }
     }
   },
 
@@ -100,4 +154,3 @@ export const coffeeService = {
     }
   }
 }
-

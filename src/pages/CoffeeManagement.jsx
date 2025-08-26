@@ -45,6 +45,7 @@ export default function CoffeeManagement() {
     imageUrl: ''
   })
   const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedEditImage, setSelectedEditImage] = useState(null)
   const [createLoading, setCreateLoading] = useState(false)
   const [pageInfo, setPageInfo] = useState({
     pageNum: 1,
@@ -144,7 +145,7 @@ export default function CoffeeManagement() {
         description: editForm.description || null,
         code: editForm.code || null,
         isActive: editForm.isActive,
-        image: null,
+        image: selectedEditImage,
         imageUrl: editForm.imageUrl || null
       }
 
@@ -162,6 +163,7 @@ export default function CoffeeManagement() {
         isActive: true,
         imageUrl: ''
       })
+      setSelectedEditImage(null)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -209,28 +211,12 @@ export default function CoffeeManagement() {
         throw new Error('Code is required')
       }
 
-      // Upload image and convert to base64 if selected
-      let base64Image = ''
+      // Add the selected image file directly (not base64)
       if (selectedImage) {
-        try {
-          await coffeeService.uploadCoffeeImage(selectedImage)
-          const reader = new FileReader()
-          base64Image = await new Promise((resolve, reject) => {
-            reader.onload = () => resolve(reader.result.split(',')[1])
-            reader.onerror = reject
-            reader.readAsDataURL(selectedImage)
-          })
-        } catch (uploadError) {
-          console.error('Image upload failed:', uploadError)
-        }
+        createData.image = selectedImage
       }
 
-      const coffeeDataWithImage = {
-        ...createData,
-        image: base64Image
-      }
-
-      await coffeeService.createCoffeeItem(coffeeDataWithImage)
+      await coffeeService.createCoffeeItem(createData)
 
       await fetchCoffeeItems()
       
@@ -528,6 +514,32 @@ export default function CoffeeManagement() {
               <Form.Text className="text-muted">
                 Enter image URL or leave empty for default icon
               </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Upload Image</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0]
+                  setSelectedEditImage(file)
+                  // Clear ImageUrl when file is uploaded (they are mutually exclusive)
+                  if (file) {
+                    setEditForm(prev => ({ ...prev, imageUrl: '' }))
+                  }
+                }}
+              />
+              <Form.Text className="text-muted">
+                Upload a new image file. This will replace any existing image URL.
+              </Form.Text>
+              {selectedEditImage && (
+                <div className="mt-2">
+                  <small className="text-success">
+                    ✓ Selected: {selectedEditImage.name} ({(selectedEditImage.size / 1024).toFixed(1)} KB)
+                  </small>
+                </div>
+              )}
             </Form.Group>
 
             <Form.Group className="mb-3">
