@@ -12,7 +12,10 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="d-flex flex-column vh-100 p-3 bg-light" style={{ width: 240 }}>
+    <div
+      className="d-flex flex-column vh-100 position-fixed top-0 start-0 p-3 bg-light"
+      style={{ width: 240 }}
+    >
       <h4 className="mb-4">Coffee Admin</h4>
       <Nav className="flex-column mb-auto">
         <Nav.Link as={NavLink} to="/dashboard" end>

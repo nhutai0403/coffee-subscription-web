@@ -3,9 +3,9 @@ import Sidebar from './Sidebar'
 
 export default function DashboardLayout() {
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <Sidebar />
-      <div className="flex-grow-1 p-4">
+      <div className="p-4" style={{ marginLeft: 240 }}>
         <Outlet />
       </div>
     </div>
