@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   Container, 
   Row, 
@@ -52,25 +52,7 @@ export default function CoffeeManagement() {
     fetchCoffeeItems()
   }, [])
 
-  // Filter items when search or category changes
-  useEffect(() => {
-    filterItems()
-  }, [coffeeItems, searchTerm, categoryFilter])
-
-  const fetchCoffeeItems = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const data = await coffeeService.getAllCoffeeItems()
-      setCoffeeItems(data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterItems = () => {
+  const filterItems = useCallback(() => {
     let filtered = coffeeItems
 
     // Filter by search term
@@ -88,7 +70,27 @@ export default function CoffeeManagement() {
     }
 
     setFilteredItems(filtered)
+  }, [coffeeItems, searchTerm, categoryFilter])
+
+  // Filter items when search or category changes
+  useEffect(() => {
+    filterItems()
+  }, [filterItems])
+
+  const fetchCoffeeItems = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const data = await coffeeService.getAllCoffeeItems()
+      setCoffeeItems(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  
 
   const handleEdit = (coffee) => {
     setSelectedCoffee(coffee)
