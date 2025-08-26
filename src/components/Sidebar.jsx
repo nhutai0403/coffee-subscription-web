@@ -30,6 +30,9 @@ export default function Sidebar() {
         <Nav.Link as={NavLink} to="/subscription-plans">
           Subscription Plans
         </Nav.Link>
+        <Nav.Link as={NavLink} to="/plan-coffee-options">
+          Plan Coffee Options
+        </Nav.Link>
         <Nav.Link as={NavLink} to="/time-windows">
           Time Windows
         </Nav.Link>
