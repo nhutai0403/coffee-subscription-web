@@ -36,19 +36,6 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const signInWithGoogle = useCallback(async (googleToken) => {
-    try {
-      const { token: newToken, user: authedUser } = await authService.signInWithGoogle(googleToken)
-      localStorage.setItem('auth_token', newToken)
-      localStorage.setItem('auth_user', JSON.stringify(authedUser))
-      setToken(newToken)
-      setUser(authedUser)
-      return authedUser
-    } catch (error) {
-      console.error('Google sign in error:', error)
-      throw error
-    }
-  }, [])
 
   const signUp = useCallback(async (name, email, password) => {
     try {
@@ -85,8 +72,7 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     signOut,
-    signInWithGoogle,
-  }), [user, token, isInitializing, signIn, signUp, signOut, signInWithGoogle])
+  }), [user, token, isInitializing, signIn, signUp, signOut])
 
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

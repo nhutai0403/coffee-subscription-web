@@ -101,21 +101,6 @@ export const authService = {
     }
   },
 
-  signInWithGoogle: async (googleToken) => {
-    try {
-      const response = await api.post('/api/Auth/google-login', { token: googleToken })
-      if (!response.data.success || !response.data.data?.token) {
-        throw new Error('Google login failed')
-      }
-      return {
-        token: response.data.data.token,
-        user: response.data.data.user || { provider: 'google' }
-      }
-    } catch (error) {
-      handleError(error)
-    }
-  },
-
   signOut: () => {
     localStorage.removeItem('auth_token')
     return true

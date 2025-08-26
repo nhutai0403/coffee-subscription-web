@@ -2,35 +2,15 @@ import { useState } from 'react'
 import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { GoogleLogin } from '@react-oauth/google'
 
 export default function SignIn() {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setError('')
-    setGoogleLoading(true)
-    try {
-      await signInWithGoogle(credentialResponse.credential)
-      const redirectTo = location.state?.from || '/'
-      navigate(redirectTo)
-    } catch (err) {
-      setError(err?.message || 'Google sign in failed')
-    } finally {
-      setGoogleLoading(false)
-    }
-  }
-
-  const handleGoogleError = () => {
-    setError('Google sign in failed')
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -67,16 +47,6 @@ export default function SignIn() {
             </Button>
           </div>
         </Form>
-        <div className="my-3 text-center">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            width="340"
-            theme="outline"
-            size="large"
-          />
-          {googleLoading && <Spinner animation="border" size="sm" className="me-2" />}<span>{googleLoading ? 'Signing in with Google…' : ''}</span>
-        </div>
         <div className="mt-3">
           New here? <Link to="/signup">Create an account</Link>
         </div>
