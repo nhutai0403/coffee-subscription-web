@@ -18,6 +18,9 @@ export default function Sidebar() {
         <Nav.Link as={NavLink} to="/dashboard" end>
           Dashboard
         </Nav.Link>
+        <Nav.Link as={NavLink} to="/coffee-management">
+          Coffee Items
+        </Nav.Link>
         <Nav.Link as={NavLink} to="/users">
           User Management
         </Nav.Link>
