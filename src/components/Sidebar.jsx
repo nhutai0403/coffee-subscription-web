@@ -33,6 +33,9 @@ export default function Sidebar() {
         <Nav.Link as={NavLink} to="/time-windows">
           Time Windows
         </Nav.Link>
+        <Nav.Link as={NavLink} to="/daily-cup-tracking">
+          Daily Cup Tracking
+        </Nav.Link>
       </Nav>
       <Button variant="outline-danger" className="mt-auto" onClick={handleLogout}>
         Logout
