@@ -42,8 +42,50 @@ const subscriptionData = [
 ]
 
 export default function Dashboard() {
+  const totalRevenue = revenueData.reduce((sum, r) => sum + r.revenue, 0)
+  const totalSubscriptions = subscriptionData.reduce(
+    (sum, s) => sum + s.subscribers,
+    0,
+  )
+
+  const stats = [
+    {
+      title: 'Total Revenue',
+      value: `$${totalRevenue.toLocaleString()}`,
+      change: '+20% from last month',
+    },
+    {
+      title: 'Active Users',
+      value: '2,350',
+      change: '+3.5% from last month',
+    },
+    {
+      title: 'Subscriptions',
+      value: totalSubscriptions.toLocaleString(),
+      change: '+25 from last month',
+    },
+    {
+      title: 'Conversion Rate',
+      value: '3.2%',
+      change: '+2% from last month',
+    },
+  ]
+
   return (
     <Container fluid className="py-3">
+      <Row className="g-4 mb-4">
+        {stats.map(({ title, value, change }) => (
+          <Col sm={6} lg={3} key={title}>
+            <Card className="h-100 bg-white rounded-3">
+              <Card.Body>
+                <Card.Title className="text-muted">{title}</Card.Title>
+                <h3 className="mb-0">{value}</h3>
+                <div className="small text-success">{change}</div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
       <Row className="g-4">
         <Col md={8}>
           <Card className="h-100 bg-white rounded-3">
