@@ -8,17 +8,19 @@ export default function Header() {
 
   const handleSignOut = () => {
     signOut()
-    navigate('/signin')
+    navigate('/')
   }
 
   return (
     <Navbar expand="md" bg="dark" data-bs-theme="dark" className="py-3 mb-4">
       <Container>
-        <Navbar.Brand as={Link} to="/">Coffee Subscription</Navbar.Brand>
+        <Navbar.Brand as={Link} to={isAuthenticated ? '/home' : '/'}>Coffee Subscription</Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav">
           <Nav className="me-auto">
-            <Nav.Link as={NavLink} to="/">Home</Nav.Link>
+            {isAuthenticated && (
+              <Nav.Link as={NavLink} to="/home">Home</Nav.Link>
+            )}
             {isAuthenticated && (
               <Nav.Link as={NavLink} to="/coffee-management">Coffee Management</Nav.Link>
             )}
@@ -36,8 +38,7 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Nav.Link as={NavLink} to="/signin">Sign In</Nav.Link>
-                <Nav.Link as={NavLink} to="/signup">Sign Up</Nav.Link>
+                <Nav.Link as={NavLink} to="/">Sign In</Nav.Link>
               </>
             )}
           </Nav>

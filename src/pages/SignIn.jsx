@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function SignIn() {
@@ -18,7 +18,7 @@ export default function SignIn() {
     setLoading(true)
     try {
       await signIn(email, password)
-      const redirectTo = location.state?.from || '/'
+      const redirectTo = location.state?.from || '/home'
       navigate(redirectTo)
     } catch (err) {
       setError(err?.message || 'Failed to sign in')
@@ -47,9 +47,6 @@ export default function SignIn() {
             </Button>
           </div>
         </Form>
-        <div className="mt-3">
-          New here? <Link to="/signup">Create an account</Link>
-        </div>
       </Card.Body>
     </Card>
   )
