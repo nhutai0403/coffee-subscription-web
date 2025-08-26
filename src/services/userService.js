@@ -24,7 +24,7 @@ export const userService = {
         }
       }
       const response = await api.post('/api/User/search', payload)
-      return response.data.data?.pageData || []
+      return response.data.data
     } catch (error) {
       console.error('Error searching users:', error)
       throw new Error('Failed to search users.')
@@ -47,6 +47,15 @@ export const userService = {
     } catch (error) {
       console.error('Error updating user status:', error)
       throw new Error('Failed to update user status.')
+    }
+  },
+
+  createUser: async (payload) => {
+    try {
+      await api.post('/api/User', payload)
+    } catch (error) {
+      console.error('Error creating user:', error)
+      throw new Error('Failed to create user.')
     }
   }
 }

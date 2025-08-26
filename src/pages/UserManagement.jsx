@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Container,
   Card,
@@ -8,7 +8,8 @@ import {
   InputGroup,
   Modal,
   Spinner,
-  Alert
+  Alert,
+  Pagination
 } from 'react-bootstrap'
 import { userService } from '../services/userService'
 
@@ -19,31 +20,46 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState(null)
   const [showDetail, setShowDetail] = useState(false)
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const pageSize = 10
+  const [showAdd, setShowAdd] = useState(false)
+  const [newUser, setNewUser] = useState({
+    email: '',
+    password: '',
+    username: '',
+    fullName: '',
+    phoneNumber: ''
+  })
+  const [adding, setAdding] = useState(false)
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async (pageNum = page) => {
     try {
       setLoading(true)
       setError('')
-      const data = await userService.getUsers()
-      setUsers(data || [])
+      const data = await userService.searchUsers(searchTerm, false, pageNum, pageSize)
+      setUsers(data?.pageData || [])
+      setTotalPages(data?.pageInfo?.totalPages || 0)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, page])
+
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
 
   const handleSearch = async (e) => {
     e.preventDefault()
     try {
       setLoading(true)
       setError('')
-      const data = await userService.searchUsers(searchTerm)
-      setUsers(data)
+      const data = await userService.searchUsers(searchTerm, false, 0, pageSize)
+      setUsers(data?.pageData || [])
+      setTotalPages(data?.pageInfo?.totalPages || 0)
+      setPage(0)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -72,6 +88,22 @@ export default function UserManagement() {
     }
   }
 
+  const handleAddUser = async (e) => {
+    e.preventDefault()
+    try {
+      setAdding(true)
+      setError('')
+      await userService.createUser(newUser)
+      setShowAdd(false)
+      setNewUser({ email: '', password: '', username: '', fullName: '', phoneNumber: '' })
+      fetchUsers()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setAdding(false)
+    }
+  }
+
   return (
     <Container>
       <h2 className="mb-4">User Management</h2>
@@ -86,9 +118,10 @@ export default function UserManagement() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <Button type="submit">Search</Button>
-              <Button variant="secondary" onClick={fetchUsers}>Reset</Button>
+              <Button variant="secondary" onClick={() => { setSearchTerm(''); setPage(0); fetchUsers(0) }}>Reset</Button>
             </InputGroup>
           </Form>
+          <Button className="mt-3" onClick={() => setShowAdd(true)}>Add User</Button>
         </Card.Body>
       </Card>
 
@@ -141,9 +174,92 @@ export default function UserManagement() {
                 ))}
               </tbody>
             </Table>
+            {totalPages > 1 && (
+              <Pagination className="justify-content-center">
+                <Pagination.First disabled={page === 0} onClick={() => setPage(0)} />
+                <Pagination.Prev disabled={page === 0} onClick={() => setPage(p => Math.max(p - 1, 0))} />
+                {[...Array(totalPages)].map((_, idx) => (
+                  <Pagination.Item
+                    key={idx}
+                    active={idx === page}
+                    onClick={() => setPage(idx)}
+                  >
+                    {idx + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next
+                  disabled={page >= totalPages - 1}
+                  onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
+                />
+                <Pagination.Last
+                  disabled={page >= totalPages - 1}
+                  onClick={() => setPage(totalPages - 1)}
+                />
+              </Pagination>
+            )}
           </Card.Body>
         </Card>
       )}
+
+      <Modal show={showAdd} onHide={() => setShowAdd(false)}>
+        <Form onSubmit={handleAddUser}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add User</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                value={newUser.username}
+                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Full Name</Form.Label>
+              <Form.Control
+                value={newUser.fullName}
+                onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Phone Number</Form.Label>
+              <Form.Control
+                value={newUser.phoneNumber}
+                onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })}
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowAdd(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={adding}>
+              Add
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
 
       <Modal show={showDetail} onHide={() => setShowDetail(false)}>
         <Modal.Header closeButton>
