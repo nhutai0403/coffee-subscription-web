@@ -9,6 +9,7 @@ import DashboardLayout from './components/DashboardLayout'
 import UserManagement from './pages/UserManagement'
 import Subscriptions from './pages/Subscriptions'
 import TimeWindows from './pages/TimeWindows'
+import DailyCupTracking from './pages/DailyCupTracking'
 import './App.css'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/subscription-plans" element={<SubscriptionPlanPage />} />
         <Route path="/subscription-plans/:id" element={<SubscriptionPlanDetail />} />
         <Route path="/time-windows" element={<TimeWindows />} />
+        <Route path="/daily-cup-tracking" element={<DailyCupTracking />} />
       </Route>
     </Routes>
   )
