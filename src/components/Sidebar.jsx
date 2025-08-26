@@ -21,6 +21,9 @@ export default function Sidebar() {
         <Nav.Link as={NavLink} to="/users">
           User Management
         </Nav.Link>
+        <Nav.Link as={NavLink} to="/subscriptions">
+          Subscriptions
+        </Nav.Link>
         <Nav.Link as={NavLink} to="/subscription-plans">
           Subscription Plans
         </Nav.Link>
