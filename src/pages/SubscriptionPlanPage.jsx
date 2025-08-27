@@ -75,8 +75,9 @@ const SubscriptionPlanPage = () => {
   const handleDelete = async () => {
     try {
       await subscriptionPlanService.deletePlan(deletingPlan.planId);
+      setPlans(prev => prev.filter(plan => plan.planId !== deletingPlan.planId));
       setShowDelete(false);
-      fetchPlans();
+      setDeletingPlan(null);
     } catch (err) {
       setDeleteError(err.message);
     }
@@ -85,7 +86,7 @@ const SubscriptionPlanPage = () => {
   return (
     <Container className="mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Subscription Plans</h2>
+        <h2>📋 Subscription Plans</h2>
         <Button variant="primary" onClick={() => setShowCreate(true)}>
           + Add Plan
         </Button>
@@ -107,7 +108,7 @@ const SubscriptionPlanPage = () => {
               <th>Total Cups</th>
               <th>Daily Cup Limit</th>
               <th>Status</th>
-              <th>Actions</th> {/* Thêm cột Actions */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -116,7 +117,7 @@ const SubscriptionPlanPage = () => {
                 <td>{idx + 1}</td>
                 <td>{plan.planName}</td>
                 <td>{plan.description}</td>
-                <td>{typeof plan.price === 'number' ? plan.price.toLocaleString() : 0} đ</td> {/* Fix lỗi nếu price null */}
+                <td>{typeof plan.price === 'number' ? plan.price.toLocaleString() : 0} đ</td>
                 <td>{plan.durationDays}</td>
                 <td>{plan.totalCups}</td>
                 <td>{plan.dailyCupLimit}</td>
@@ -136,7 +137,7 @@ const SubscriptionPlanPage = () => {
                     size="sm"
                     onClick={() => {
                       setDeletingPlan(plan);
-                      setDeleteError(''); // Reset lỗi khi mở modal xóa mới
+                      setDeleteError(''); 
                       setShowDelete(true);
                     }}
                   >

@@ -105,7 +105,7 @@ export default function Subscriptions() {
 
   return (
     <Container>
-      <h2 className="mb-4">Subscription Management</h2>
+      <h2 className="mb-4">📦 Subscription Management</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       <Row className="mb-4 g-3">
         <Col md>
@@ -261,4 +261,3 @@ export default function Subscriptions() {
     </Container>
   )
 }
-

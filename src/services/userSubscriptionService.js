@@ -33,11 +33,10 @@ export const userSubscriptionService = {
 
   deleteSubscription: async (id) => {
     try {
-      await api.delete('/api/UserSubscription', { params: { id } })
+      await api.delete(`/api/UserSubscription/${id}`)
     } catch (error) {
       console.error('Error deleting subscription:', error)
       throw new Error('Failed to delete subscription.')
     }
   }
 }
-

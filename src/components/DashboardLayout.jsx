@@ -5,7 +5,7 @@ export default function DashboardLayout() {
   return (
     <div style={{ minHeight: '100vh' }}>
       <Sidebar />
-      <div className="p-4" style={{ marginLeft: 240 }}>
+      <div className="p-4" style={{ marginLeft: 280 }}>
         <Outlet />
       </div>
     </div>

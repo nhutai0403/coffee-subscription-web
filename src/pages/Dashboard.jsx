@@ -73,6 +73,10 @@ export default function Dashboard() {
 
   return (
     <Container fluid className="py-3">
+      <div className="mb-4">
+        <h2 className="mb-1">Dashboard</h2>
+        <p className="text-muted mb-0">Welcome to your coffee subscription management dashboard</p>
+      </div>
       <Row className="g-4 mb-4">
         {stats.map(({ title, value, change }) => (
           <Col sm={6} lg={3} key={title}>

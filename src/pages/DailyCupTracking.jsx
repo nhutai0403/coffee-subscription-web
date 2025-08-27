@@ -107,9 +107,9 @@ export default function DailyCupTracking() {
     if (!deleting) return
     try {
       await dailyCupTrackingService.remove(deleting.trackingId)
+      setTrackings(prev => prev.filter(tracking => tracking.trackingId !== deleting.trackingId))
       setShowDelete(false)
       setDeleting(null)
-      fetchTrackings()
     } catch (err) {
       setDeleteError(err.message)
     }
@@ -118,7 +118,7 @@ export default function DailyCupTracking() {
   return (
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Daily Cup Tracking</h2>
+        <h2>📈 Daily Cup Tracking</h2>
         <Button onClick={() => setShowCreate(true)}>Add Tracking</Button>
       </div>
 

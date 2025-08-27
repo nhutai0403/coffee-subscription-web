@@ -28,7 +28,6 @@ export default function CoffeeManagement() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedCoffee, setSelectedCoffee] = useState(null)
   const [editForm, setEditForm] = useState({
-    categoryId: '',
     coffeeName: '',
     description: '',
     code: '',
@@ -121,13 +120,13 @@ export default function CoffeeManagement() {
   const handleEdit = (coffee) => {
     setSelectedCoffee(coffee)
     setEditForm({
-      categoryId: coffee.categoryId || '',
       coffeeName: coffee.coffeeName || '',
       description: coffee.description || '',
       code: coffee.code || '',
       isActive: coffee.isActive !== undefined ? coffee.isActive : true,
       imageUrl: coffee.imageUrl || ''
     })
+    setSelectedEditImage(null)
     setShowEditModal(true)
   }
 
@@ -156,7 +155,6 @@ export default function CoffeeManagement() {
       setShowEditModal(false)
       setSelectedCoffee(null)
       setEditForm({
-        categoryId: '',
         coffeeName: '',
         description: '',
         code: '',
@@ -316,7 +314,7 @@ export default function CoffeeManagement() {
                 <InputGroup.Text>🔍</InputGroup.Text>
                 <Form.Control
                   type="text"
-                  placeholder="Search by name, description, or code..."
+                  placeholder="Search by name, description,..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -456,16 +454,16 @@ export default function CoffeeManagement() {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Category ID</Form.Label>
-                  <Form.Select
-                    value={editForm.categoryId}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, categoryId: e.target.value }))}
-                  >
-                    <option value="">Select Category</option>
-                    <option value="1">1 - Vietnamese Coffee</option>
-                    <option value="2">2 - Espresso</option>
-                    <option value="3">3 - Cold Brew</option>
-                  </Form.Select>
+                  <Form.Label>Category</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={getCategoryName(selectedCoffee?.categoryId)}
+                    disabled
+                    className="bg-light"
+                  />
+                  <Form.Text className="text-muted">
+                    Category cannot be changed after creation
+                  </Form.Text>
                 </Form.Group>
               </Col>
               <Col md={6}>

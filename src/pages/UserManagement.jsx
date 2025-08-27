@@ -9,7 +9,8 @@ import {
   Modal,
   Spinner,
   Alert,
-  Pagination
+  Row,
+  Col
 } from 'react-bootstrap'
 import { userService } from '../services/userService'
 
@@ -20,9 +21,6 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState(null)
   const [showDetail, setShowDetail] = useState(false)
-  const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const pageSize = 10
   const [showAdd, setShowAdd] = useState(false)
   const [newUser, setNewUser] = useState({
     email: '',
@@ -33,19 +31,18 @@ export default function UserManagement() {
   })
   const [adding, setAdding] = useState(false)
 
-  const fetchUsers = useCallback(async (pageNum = page) => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
-      const data = await userService.searchUsers(searchTerm, false, pageNum, pageSize)
+      const data = await userService.searchUsers(searchTerm, false, 0, 100)
       setUsers(data?.pageData || [])
-      setTotalPages(data?.pageInfo?.totalPages || 0)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
     }
-  }, [searchTerm, page])
+  }, [searchTerm])
 
   useEffect(() => {
     fetchUsers()
@@ -56,10 +53,8 @@ export default function UserManagement() {
     try {
       setLoading(true)
       setError('')
-      const data = await userService.searchUsers(searchTerm, false, 0, pageSize)
+      const data = await userService.searchUsers(searchTerm, false, 0, 100)
       setUsers(data?.pageData || [])
-      setTotalPages(data?.pageInfo?.totalPages || 0)
-      setPage(0)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -105,23 +100,40 @@ export default function UserManagement() {
   }
 
   return (
-    <Container>
-      <h2 className="mb-4">User Management</h2>
+    <Container className="mt-4">
+      <Row className="mb-4">
+        <Col>
+          <h2>👥 User Management</h2>
+          <p className="text-muted">Manage user accounts and permissions</p>
+        </Col>
+        <Col xs="auto">
+          <Button variant="primary" onClick={() => setShowAdd(true)}>
+            + Add User
+          </Button>
+        </Col>
+      </Row>
 
       <Card className="mb-4">
         <Card.Body>
-          <Form onSubmit={handleSearch}>
-            <InputGroup>
-              <Form.Control
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button type="submit">Search</Button>
-              <Button variant="secondary" onClick={() => { setSearchTerm(''); setPage(0); fetchUsers(0) }}>Reset</Button>
-            </InputGroup>
-          </Form>
-          <Button className="mt-3" onClick={() => setShowAdd(true)}>Add User</Button>
+          <Row>
+            <Col md={8}>
+              <InputGroup>
+                <InputGroup.Text>🔍</InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Search users by name, email, or username..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Button 
+                  variant="outline-secondary" 
+                  onClick={() => { setSearchTerm(''); fetchUsers() }}
+                >
+                  🔄 Reset
+                </Button>
+              </InputGroup>
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
 
@@ -174,29 +186,6 @@ export default function UserManagement() {
                 ))}
               </tbody>
             </Table>
-            {totalPages > 1 && (
-              <Pagination className="justify-content-center">
-                <Pagination.First disabled={page === 0} onClick={() => setPage(0)} />
-                <Pagination.Prev disabled={page === 0} onClick={() => setPage(p => Math.max(p - 1, 0))} />
-                {[...Array(totalPages)].map((_, idx) => (
-                  <Pagination.Item
-                    key={idx}
-                    active={idx === page}
-                    onClick={() => setPage(idx)}
-                  >
-                    {idx + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next
-                  disabled={page >= totalPages - 1}
-                  onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
-                />
-                <Pagination.Last
-                  disabled={page >= totalPages - 1}
-                  onClick={() => setPage(totalPages - 1)}
-                />
-              </Pagination>
-            )}
           </Card.Body>
         </Card>
       )}

@@ -120,9 +120,9 @@ export default function PlanCoffeeOption() {
     if (!deletingOption) return
     try {
       await planCoffeeOptionService.remove(deletingOption.optionId)
+      setOptions(prev => prev.filter(option => option.optionId !== deletingOption.optionId))
       setShowDelete(false)
       setDeletingOption(null)
-      fetchOptions()
     } catch (err) {
       setDeleteError(err.message)
     }
@@ -132,7 +132,7 @@ export default function PlanCoffeeOption() {
     <Container className="py-4">
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
-          <h5 className="mb-0">Plan Coffee Options</h5>
+          <h5 className="mb-0">⚙️ Plan Coffee Options</h5>
           <Button onClick={() => setShowCreate(true)}>Add Option</Button>
         </Card.Header>
         <Card.Body>
@@ -294,4 +294,3 @@ export default function PlanCoffeeOption() {
     </Container>
   )
 }
-

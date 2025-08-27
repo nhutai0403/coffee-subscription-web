@@ -115,9 +115,9 @@ export default function TimeWindows() {
     if (!deletingWindow) return
     try {
       await timeWindowService.remove(deletingWindow.windowId)
+      setWindows(prev => prev.filter(window => window.windowId !== deletingWindow.windowId))
       setShowDelete(false)
       setDeletingWindow(null)
-      fetchWindows()
     } catch (err) {
       setDeleteError(err.message)
     }
@@ -135,7 +135,7 @@ export default function TimeWindows() {
   return (
     <Container className="mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Time Window Management</h2>
+        <h2>⏰ Time Window Management</h2>
         <div>
           <Button variant="secondary" className="me-2" onClick={fetchWindows}>
             Refresh
@@ -193,7 +193,6 @@ export default function TimeWindows() {
             <tr>
               <th>#</th>
               <th>Description</th>
-              <th>Day</th>
               <th>Time Range</th>
               <th>Plan</th>
               <th>Status</th>
@@ -205,7 +204,6 @@ export default function TimeWindows() {
               <tr key={w.windowId}>
                 <td>{idx + 1}</td>
                 <td>{w.description}</td>
-                <td>{w.dayOfWeek || '-'}</td>
                 <td>
                   {w.startTime} - {w.endTime}
                 </td>
