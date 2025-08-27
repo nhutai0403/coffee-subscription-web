@@ -10,9 +10,11 @@ import {
   Spinner,
   Alert,
   Row,
-  Col
+  Col,
+  Dropdown
 } from 'react-bootstrap'
 import { userService } from '../services/userService'
+import { toast } from 'react-toastify'
 
 export default function UserManagement() {
   const [users, setUsers] = useState([])
@@ -30,6 +32,7 @@ export default function UserManagement() {
     phoneNumber: ''
   })
   const [adding, setAdding] = useState(false)
+  const [openRoleMenuId, setOpenRoleMenuId] = useState(null)
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -38,7 +41,8 @@ export default function UserManagement() {
       const data = await userService.searchUsers(searchTerm, false, 0, 100)
       setUsers(data?.pageData || [])
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -56,7 +60,8 @@ export default function UserManagement() {
       const data = await userService.searchUsers(searchTerm, false, 0, 100)
       setUsers(data?.pageData || [])
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -69,7 +74,8 @@ export default function UserManagement() {
       setSelectedUser(data)
       setShowDetail(true)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 
@@ -79,7 +85,8 @@ export default function UserManagement() {
       const updated = await userService.getUserById(user.id)
       setUsers(prev => prev.map(u => (u.id === user.id ? updated : u)))
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 
@@ -93,9 +100,21 @@ export default function UserManagement() {
       setNewUser({ email: '', password: '', username: '', fullName: '', phoneNumber: '' })
       fetchUsers()
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setAdding(false)
+    }
+  }
+
+  const handleChangeUserRole = async (user, role) => {
+    try {
+      await userService.changeUserRole(user.id, role)
+      toast.success('Cập nhật role thành công!')
+      fetchUsers()
+    } catch (err) {
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else toast.error('Cập nhật role thất bại!')
     }
   }
 
@@ -154,6 +173,7 @@ export default function UserManagement() {
                   <th>Full Name</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>Role</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
@@ -166,6 +186,63 @@ export default function UserManagement() {
                     <td>{user.fullName}</td>
                     <td>{user.email}</td>
                     <td>{user.phoneNumber}</td>
+                    <td style={{ position: 'relative' }}>
+                      {user.role}
+                      <button
+                        style={{
+                          border: '1.5px solid #F0CBAB',
+                          background: '#fff',
+                          color: '#222',
+                          borderRadius: 8,
+                          fontWeight: 500,
+                          marginLeft: 8,
+                          padding: '2px 14px',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s, color 0.2s',
+                        }}
+                        onClick={() => setOpenRoleMenuId(openRoleMenuId === user.id ? null : user.id)}
+                        onMouseOver={e => { e.target.style.background = '#F0CBAB'; e.target.style.color = '#fff'; }}
+                        onMouseOut={e => { e.target.style.background = '#fff'; e.target.style.color = '#222'; }}
+                      >
+                        Change Role ▼
+                      </button>
+                      {openRoleMenuId === user.id && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            background: '#fff',
+                            border: '1.5px solid #F0CBAB',
+                            borderRadius: 8,
+                            padding: '4px 0',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                            minWidth: '120px',
+                            zIndex: 1000
+                          }}
+                        >
+                          {['Unverified', 'Member', 'Staff', 'Manager', 'Admin'].map(roleOption => (
+                            <div
+                              key={roleOption}
+                              style={{
+                                padding: '6px 16px',
+                                cursor: 'pointer',
+                                color: '#222',
+                                fontWeight: user.role === roleOption ? 700 : 400,
+                                background: user.role === roleOption ? '#F0CBAB' : 'transparent'
+                              }}
+                              onClick={() => {
+                                handleChangeUserRole(user, roleOption)
+                                setOpenRoleMenuId(null)
+                              }}
+                              onMouseDown={e => e.preventDefault()}
+                            >
+                              {roleOption}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
                     <td>
                       <Form.Check
                         type="switch"

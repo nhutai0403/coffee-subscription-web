@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Button, Table, Spinner, Alert, Modal, Form } from 'react-bootstrap'
 import { dailyCupTrackingService } from '../services/dailyCupTrackingService'
+import { toast } from 'react-toastify'
 
 const initialForm = {
   subscriptionId: '',
@@ -38,7 +39,8 @@ export default function DailyCupTracking() {
       const data = await dailyCupTrackingService.getAll()
       setTrackings(data)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }

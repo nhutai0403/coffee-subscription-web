@@ -10,6 +10,7 @@ import {
   Card
 } from 'react-bootstrap'
 import { planCoffeeOptionService } from '../services/planCoffeeOptionService'
+import { toast } from 'react-toastify'
 
 const initialForm = {
   planId: '',
@@ -46,7 +47,8 @@ export default function PlanCoffeeOption() {
       const data = await planCoffeeOptionService.getAll()
       setOptions(data)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -70,7 +72,8 @@ export default function PlanCoffeeOption() {
       setCreateForm(initialForm)
       fetchOptions()
     } catch (err) {
-      setCreateError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setCreateError(err.message)
     } finally {
       setCreateLoading(false)
     }
@@ -87,7 +90,8 @@ export default function PlanCoffeeOption() {
       setShowEdit(true)
       setEditError('')
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 
@@ -110,7 +114,8 @@ export default function PlanCoffeeOption() {
       setEditingOption(null)
       fetchOptions()
     } catch (err) {
-      setEditError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setEditError(err.message)
     } finally {
       setEditLoading(false)
     }
@@ -124,7 +129,8 @@ export default function PlanCoffeeOption() {
       setShowDelete(false)
       setDeletingOption(null)
     } catch (err) {
-      setDeleteError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setDeleteError(err.message)
     }
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { subscriptionPlanService } from '../services/subscriptionPlanService';
 import { Table, Container, Spinner, Alert, Badge, Button, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const initialForm = {
   planName: '',
@@ -35,7 +36,8 @@ const SubscriptionPlanPage = () => {
       const data = await subscriptionPlanService.getAllPlans();
       setPlans(data);
     } catch (err) {
-      setError(err.message);
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,8 @@ const SubscriptionPlanPage = () => {
       setCreateForm(initialForm);
       fetchPlans();
     } catch (err) {
-      setCreateError(err.message);
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setCreateError(err.message);
     } finally {
       setCreateLoading(false);
     }
@@ -79,7 +82,8 @@ const SubscriptionPlanPage = () => {
       setShowDelete(false);
       setDeletingPlan(null);
     } catch (err) {
-      setDeleteError(err.message);
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setDeleteError(err.message);
     }
   };
 

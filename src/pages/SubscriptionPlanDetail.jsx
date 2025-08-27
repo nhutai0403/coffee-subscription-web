@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { subscriptionPlanService } from '../services/subscriptionPlanService';
 import { Container, Spinner, Alert, Badge, Button, Table, Modal, Form } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 const SubscriptionPlanDetail = () => {
   const { id } = useParams();
@@ -28,7 +29,8 @@ const SubscriptionPlanDetail = () => {
       const data = await subscriptionPlanService.getPlanById(id);
       setPlan(data);
     } catch (err) {
-      setError(err.message);
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message);
     } finally {
       setLoading(false);
     }

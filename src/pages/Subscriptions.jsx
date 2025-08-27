@@ -12,6 +12,7 @@ import {
   Col
 } from 'react-bootstrap'
 import { userSubscriptionService } from '../services/userSubscriptionService'
+import { toast } from 'react-toastify'
 
 export default function Subscriptions() {
   const [subs, setSubs] = useState([])
@@ -30,7 +31,8 @@ export default function Subscriptions() {
       const data = await userSubscriptionService.getSubscriptions()
       setSubs(data || [])
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -46,7 +48,8 @@ export default function Subscriptions() {
       setSelected(data)
       setShowDetail(true)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 
@@ -64,7 +67,8 @@ export default function Subscriptions() {
       setSelected(data)
       setShowEdit(true)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 
@@ -76,7 +80,8 @@ export default function Subscriptions() {
       setShowEdit(false)
       fetchSubs()
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setUpdating(false)
     }
@@ -88,7 +93,8 @@ export default function Subscriptions() {
       await userSubscriptionService.deleteSubscription(id)
       setSubs(prev => prev.filter(s => s.subscriptionId !== id))
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     }
   }
 

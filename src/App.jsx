@@ -12,28 +12,33 @@ import TimeWindows from './pages/TimeWindows'
 import DailyCupTracking from './pages/DailyCupTracking'
 import PlanCoffeeOption from './pages/PlanCoffeeOption'
 import './App.css'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<SignIn />} />
-      <Route
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/coffee-management" element={<CoffeeManagement />} />
-        <Route path="/users" element={<UserManagement />} />
-        <Route path="/subscriptions" element={<Subscriptions />} />
-        <Route path="/subscription-plans" element={<SubscriptionPlanPage />} />
-        <Route path="/subscription-plans/:id" element={<SubscriptionPlanDetail />} />
-        <Route path="/time-windows" element={<TimeWindows />} />
-        <Route path="/plan-coffee-options" element={<PlanCoffeeOption />} />
-        <Route path="/daily-cup-tracking" element={<DailyCupTracking />} />
-      </Route>
-    </Routes>
+    <>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+      <Routes>
+        <Route path="/" element={<SignIn />} />
+        <Route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/coffee-management" element={<CoffeeManagement />} />
+          <Route path="/users" element={<UserManagement />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/subscription-plans" element={<SubscriptionPlanPage />} />
+          <Route path="/subscription-plans/:id" element={<SubscriptionPlanDetail />} />
+          <Route path="/time-windows" element={<TimeWindows />} />
+          <Route path="/plan-coffee-options" element={<PlanCoffeeOption />} />
+          <Route path="/daily-cup-tracking" element={<DailyCupTracking />} />
+        </Route>
+      </Routes>
+    </>
   )
 }

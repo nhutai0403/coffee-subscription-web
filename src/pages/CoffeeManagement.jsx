@@ -15,6 +15,7 @@ import {
   Image
 } from 'react-bootstrap'
 import { coffeeService } from '../services/coffeeService'
+import { toast } from 'react-toastify'
 
 export default function CoffeeManagement() {
   const [coffeeItems, setCoffeeItems] = useState([])
@@ -163,7 +164,8 @@ export default function CoffeeManagement() {
       })
       setSelectedEditImage(null)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setEditLoading(false)
     }

@@ -67,3 +67,9 @@
   border-color: #D2691E !important;
 }
 
+/* Ensure dropdowns in table cells are not cut off */
+.table td {
+  position: relative;
+  overflow: visible !important;
+}
+

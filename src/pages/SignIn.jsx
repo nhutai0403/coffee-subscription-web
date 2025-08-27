@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function SignIn() {
   const { signIn } = useAuth()
@@ -21,7 +22,8 @@ export default function SignIn() {
       const redirectTo = location.state?.from || '/dashboard'
       navigate(redirectTo)
     } catch (err) {
-      setError(err?.message || 'Failed to sign in')
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err?.message || 'Failed to sign in')
     } finally {
       setLoading(false)
     }

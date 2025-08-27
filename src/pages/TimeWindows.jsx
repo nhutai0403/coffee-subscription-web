@@ -13,6 +13,7 @@ import {
   Badge
 } from 'react-bootstrap'
 import { timeWindowService } from '../services/timeWindowService'
+import { toast } from 'react-toastify'
 
 const initialForm = {
   planId: '',
@@ -51,7 +52,8 @@ export default function TimeWindows() {
       const data = await timeWindowService.getAll()
       setWindows(data)
     } catch (err) {
-      setError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -72,7 +74,8 @@ export default function TimeWindows() {
       setCreateForm(initialForm)
       fetchWindows()
     } catch (err) {
-      setCreateError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setCreateError(err.message)
     } finally {
       setCreateLoading(false)
     }
@@ -105,7 +108,8 @@ export default function TimeWindows() {
       setEditingWindow(null)
       fetchWindows()
     } catch (err) {
-      setEditError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setEditError(err.message)
     } finally {
       setEditLoading(false)
     }
@@ -119,7 +123,8 @@ export default function TimeWindows() {
       setShowDelete(false)
       setDeletingWindow(null)
     } catch (err) {
-      setDeleteError(err.message)
+      if (err.response && [400,401,403].includes(err.response.status)) toast.error(err.message)
+      else setDeleteError(err.message)
     }
   }
 

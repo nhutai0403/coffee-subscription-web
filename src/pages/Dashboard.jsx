@@ -10,6 +10,9 @@ import {
   LineChart,
   Line,
 } from 'recharts'
+import { useState, useEffect } from 'react'
+import { userService } from '../services/userService'
+import { userSubscriptionService } from '../services/userSubscriptionService'
 
 const revenueData = [
   { month: 'Jan', revenue: 10000 },
@@ -42,32 +45,43 @@ const subscriptionData = [
 ]
 
 export default function Dashboard() {
-  const totalRevenue = revenueData.reduce((sum, r) => sum + r.revenue, 0)
-  const totalSubscriptions = subscriptionData.reduce(
-    (sum, s) => sum + s.subscribers,
-    0,
-  )
+  const [users, setUsers] = useState([])
+  const [subscriptions, setSubscriptions] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const [usersData, subscriptionsData] = await Promise.all([
+          userService.searchUsers('', false, 0, 100), // Get all active users
+          userSubscriptionService.getSubscriptions()
+        ])
+        
+        setUsers(usersData.pageData || [])
+        setSubscriptions(subscriptionsData || [])
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  // Calculate real statistics
+  const activeUsers = users.filter(user => user.isActive).length
+  const activeSubscriptions = subscriptions.filter(sub => sub.isActive).length
 
   const stats = [
     {
-      title: 'Total Revenue',
-      value: `$${totalRevenue.toLocaleString()}`,
-      change: '+20% from last month',
-    },
-    {
       title: 'Active Users',
-      value: '2,350',
-      change: '+3.5% from last month',
+      value: loading ? 'Loading...' : activeUsers.toLocaleString(),
     },
     {
-      title: 'Subscriptions',
-      value: totalSubscriptions.toLocaleString(),
-      change: '+25 from last month',
-    },
-    {
-      title: 'Conversion Rate',
-      value: '3.2%',
-      change: '+2% from last month',
+      title: 'Active Subscriptions',
+      value: loading ? 'Loading...' : activeSubscriptions.toLocaleString(),
     },
   ]
 
@@ -158,4 +172,3 @@ export default function Dashboard() {
     </Container>
   )
 }
-

@@ -50,6 +50,15 @@ export const userService = {
     }
   },
 
+  changeUserRole: async (id, role) => {
+    try {
+      await api.put(`/api/User/change-role/${id}?role=${role}`)
+    } catch (error) {
+      console.error('Error updating user role:', error)
+      throw error
+    }
+  },
+
   createUser: async (payload) => {
     try {
       await api.post('/api/User', payload)
